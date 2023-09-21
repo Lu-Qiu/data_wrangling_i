@@ -1,0 +1,121 @@
+---
+title: "Simple document"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(haven)
+```
+
+Let's import the `FAS_litters.csv` csv.
+
+```{r}
+litter_df = read_csv('data/FAS_litters.csv')
+litter_df = janitor::clean_names(litter_df)
+```
+
+Import the same dataset using an absolute path.
+
+```{r}
+litter_df_abs = read_csv('C:/Users/Surface/Desktop/P8105_Data Science/data_wrangling_i/data/FAS_litters.csv')
+litter_df_abs = janitor::clean_names(litter_df_abs)
+```
+
+
+```{r}
+pups_df = read_csv('data/FAS_pups.csv')
+pups_df = janitor::clean_names(pups_df)
+```
+
+## Look at data
+
+```{r}
+litter_df
+
+head(litter_df)
+
+tail(litter_df)
+```
+
+You can use 'view'
+
+```{r, eval = FALSE}
+view(litter_df)
+```
+
+Look at a data summary
+```{r}
+
+str(litter_df)
+skimr::skim(litter_df)
+```
+
+
+## Options in `read`
+
+```{r}
+litter_df = 
+  read_csv('data/FAS_litters.csv',
+           skip =10, col_names = FALSE)
+```
+
+Look at NA values
+
+
+```{r}
+litter_df = 
+  read_csv('data/FAS_litters.csv',
+           na = c('NA',19,'.'))
+```
+
+Column types
+```{r}
+litter_df = 
+  read_csv('data/FAS_litters.csv',
+           col_types = 
+             cols(
+               Group = col_factor()
+               
+             )
+           )
+```
+
+### Other file types
+
+Import a xlsx file first.
+
+```{r}
+mlb_df = 
+  read_excel('data/mlb11.xlsx')
+```
+
+Import a SAS file
+```{r}
+pulse_df = 
+  read_sas('data/public_pulse_data.sas7bdat')
+```
+
+## Base R....
+
+DON'T DO THIS! AS WELL AS THE `$`
+```{r, eval = FALSE}
+litter_df = 
+  read.csv('data/FAS_litters.csv')
+```
+
+## Export data
+
+
+```{r}
+litter_df_cleaned = 
+  read_csv('data/FAS_litters.csv')
+
+litter_df_cleaned = 
+  janitor::clean_names(litter_df_cleaned)
+
+write_csv(litter_df_cleaned,'data/litters_cleaned.csv')
+
+```
+
