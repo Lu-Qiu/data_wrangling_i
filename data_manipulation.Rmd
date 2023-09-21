@@ -1,5 +1,5 @@
 ---
-title: "Simple document"
+title: "Data Manipulation"
 output: html_document
 ---
 
@@ -12,16 +12,10 @@ library(haven)
 Let's import the `FAS_litters.csv` csv.
 
 ```{r}
-litter_df = read_csv('data/FAS_litters.csv')
-litter_df = janitor::clean_names(litter_df)
+litters_df = read_csv('data/FAS_litters.csv')
+litters_df = janitor::clean_names(litters_df)
 ```
 
-Import the same dataset using an absolute path.
-
-```{r}
-litter_df_abs = read_csv('C:/Users/Surface/Desktop/P8105_Data Science/data_wrangling_i/data/FAS_litters.csv')
-litter_df_abs = janitor::clean_names(litter_df_abs)
-```
 
 
 ```{r}
@@ -29,93 +23,107 @@ pups_df = read_csv('data/FAS_pups.csv')
 pups_df = janitor::clean_names(pups_df)
 ```
 
-## Look at data
+Use 'select' to select columns
+```{r}
+select(litters_df, group, gd0_weight)
+
+select(litters_df, group, gd0_weight:gd_of_birth)
+
+select(litters_df, group, starts_with('pups'))
+
+select(litters_df, -litter_number)
+
+
+
+select(litters_df, group, litter_id = litter_number)
+
+select(litters_df, group, litter_id = litter_number, everything())
+
+select(litters_df, gd0_weight, everything())
+```
+
+'select' vs 'pull
 
 ```{r}
-litter_df
-
-head(litter_df)
-
-tail(litter_df)
+select(litters_df, group)
+pull(litters_df, group)
 ```
-
-You can use 'view'
-
-```{r, eval = FALSE}
-view(litter_df)
-```
-
-Look at a data summary
+rename and relocate
 ```{r}
+rename(litters_df, litter_id = litter_number)
 
-str(litter_df)
-skimr::skim(litter_df)
+relocate(litters_df, litter_number, pups_survive)
 ```
 
+## `filter`
 
-## Options in `read`
+get rid of rows using `filter()`
 
 ```{r}
-litter_df = 
-  read_csv('data/FAS_litters.csv',
-           skip =10, col_names = FALSE)
+filter(litters_df, group == 'Con7')
+
+filter(litters_df, group == 'Mod8')
+
+filter(litters_df, group != 'Con7')
+
+filter(litters_df, gd0_weight > 20)
+
+filter(litters_df, gd0_weight <= 20)
+
+filter(litters_df, group == 'Con7' | group == 'Con8')
+
+filter(litters_df, group %in% c('Con7','Con8'))
+
+filter(litters_df, !(group == 'Con7'))
+
+filter(litters_df, group %in% c('Con7','Con8'), gd0_weight > 20)
+
 ```
 
-Look at NA values
+what about missing rows
+```{r}
+drop_na(litters_df)
+drop_na(litters_df, gd0_weight)
+```
 
+## `mutate`
+
+this is used to add or change variables
 
 ```{r}
-litter_df = 
-  read_csv('data/FAS_litters.csv',
-           na = c('NA',19,'.'))
+mutate(litters_df, wt_gain = gd18_weight - gd0_weight)
+
+mutate(litters_df, group = str_to_lower(group))
+
+mutate(
+  litters_df,
+  wt_gain = gd18_weight - gd0_weight,
+  group = str_to_lower(group)
+)
 ```
 
-Column types
-```{r}
-litter_df = 
-  read_csv('data/FAS_litters.csv',
-           col_types = 
-             cols(
-               Group = col_factor()
-               
-             )
-           )
-```
 
-### Other file types
-
-Import a xlsx file first.
+## `arrange`
 
 ```{r}
-mlb_df = 
-  read_excel('data/mlb11.xlsx')
+arrange(litters_df, gd0_weight)
+arrange(litters_df, group, gd0_weight)
 ```
 
-Import a SAS file
-```{r}
-pulse_df = 
-  read_sas('data/public_pulse_data.sas7bdat')
-```
 
-## Base R....
-
-DON'T DO THIS! AS WELL AS THE `$`
-```{r, eval = FALSE}
-litter_df = 
-  read.csv('data/FAS_litters.csv')
-```
-
-## Export data
-
+## pipes
 
 ```{r}
-litter_df_cleaned = 
-  read_csv('data/FAS_litters.csv')
-
-litter_df_cleaned = 
-  janitor::clean_names(litter_df_cleaned)
-
-write_csv(litter_df_cleaned,'data/litters_cleaned.csv')
-
+litters_df = 
+  read_csv('data/FAS_litters.csv') |>
+  janitor::clean_names() |>
+  select(-starts_with('pups')) |>
+  mutate(
+    group = str_to_lower(group),
+    wt_gain = gd18_weight - gd0_weight
+  ) |>
+  drop_na(wt_gain) |>
+  arrange(group, wt_gain)
+            
 ```
 
