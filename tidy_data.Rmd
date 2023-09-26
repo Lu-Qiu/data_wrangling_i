@@ -2,7 +2,7 @@
 title: "Tidy Data"
 author: "Lu Qiu"
 date: "2023-09-26"
-output: html_document
+output: github_document
 ---
 
 
